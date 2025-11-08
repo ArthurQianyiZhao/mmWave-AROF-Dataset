@@ -3,10 +3,10 @@ Dataset and benchmark enabling machine learning applications for mmWave analog r
 
 Current setup: 
 
-Carrier frequency: 28GHz
+Carrier frequency: 28GHz/ 29GHz/ 30GHz
 
 Bandwidth: 1GHz
 
-Transmission Fiber Length: 0km/5km/10km
+Transmission Fiber Length: 1m/5km/10km
 
-PD Received Optical Power: 
+PD Received Optical Power: 3dBm/ 5dBm/ 7dBm
