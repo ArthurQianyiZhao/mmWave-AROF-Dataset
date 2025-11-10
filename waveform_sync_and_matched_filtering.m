@@ -35,6 +35,10 @@ txPayloadSymbols = qammod(txDataBits, M, 'gray', 'InputType', 'bit', 'UnitAverag
 % --- Concatenate and Filter ---
 totalTxSymbols = [preambleSymbols; txPayloadSymbols];
 
+% Export bit sequence to txt file
+% totalBits = [preambleBits; txDataBits];
+% writematrix(totalBits, "64QAM_bits");
+
 rcFilter = comm.RaisedCosineTransmitFilter( ...
     'Shape', 'Square root', ...
     'RolloffFactor', rolloff, ...
