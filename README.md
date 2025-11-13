@@ -5,7 +5,7 @@ Current setup:
 
 Bandwidth: 1GHz
 
-Modulation Scheme: QPSK/ 16QAM/ 32 QAM/ 64 QAM
+Modulation Scheme: QPSK (2Gbps)/ 16QAM (4Gbps)/ 32 QAM (5Gbps)/ 64 QAM ((6Gbps))
 
 Carrier frequency: 28GHz/ 29GHz/ 30GHz
 
