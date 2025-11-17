@@ -10,7 +10,7 @@ The dataset is divided into two primary components:
 
 ### 1. Reference Transmitted Waveforms (Tx)
 
-These serve as the **ground truth** for subsequent experiments. They are generated from a pseudorandom binary sequence (PRBS) and pulse-shaped.
+These serve as the ground truth for subsequent experiments. They are generated from a pseudorandom binary sequence (PRBS) and pulse-shaped.
 
 | **Feature**              | **Description**                                              |
 | ------------------------ | ------------------------------------------------------------ |
@@ -26,7 +26,7 @@ These serve as the **ground truth** for subsequent experiments. They are generat
 
 ### 2. Experimentally Received Waveforms (Rx)
 
-These are the core of the experimental data, resulting from transmitting the Tx waveforms through the ARoF link under various conditions. The sweep of experimental parameters results in a total of **108 unique experimental scenarios**.
+These are the core of the experimental data, resulting from transmitting the Tx waveforms through the ARoF link under various conditions. The sweep of experimental parameters results in a total of 108 unique experimental scenarios.
 
 | **Parameter Category**         | **Values Swept**                |
 | ------------------------------ | ------------------------------- |
@@ -46,7 +46,7 @@ These are the core of the experimental data, resulting from transmitting the Tx 
 
 ### Rx Waveform Hierarchical Structure
 
-The 81 sets of received waveforms (4 modulation schemes $\times$ 3 frequencies $\times$ 3 lengths $\times$ 3 powers $\rightarrow$ **108** scenarios) are organized in a clear folder structure:
+The 108 sets of received waveforms (4 modulation schemes $\times$ 3 frequencies $\times$ 3 lengths $\times$ 3 powers $\rightarrow$ 108 scenarios) are organized in a clear folder structure:
 
 ```
 [Fiber Length]/[Modulation Scheme]/[ModulationFormat_CarrierFrequency_PDInputPower_i/q.txt]
@@ -62,7 +62,8 @@ The 81 sets of received waveforms (4 modulation schemes $\times$ 3 frequencies $
 
 ## Essential Pre-processing: Synchronization
 
-**CRITICAL NOTE:** The received (Rx) waveforms are **NOT** time-aligned with the reference transmitted (Tx) waveforms.
+The received (Rx) waveforms are NOT time-aligned with the reference transmitted (Tx) waveforms.
 
-- A **synchronization step** is essential before any signal processing, channel estimation, or model training can be performed.
-- **Assistance:** An example **MATLAB script** is provided in the dataset root directory demonstrating how to perform this synchronization using **autocorrelation** and subsequent **symbol selection with matched filtering**.
+- A synchronization step is essential before any signal processing, channel estimation, or model training can be performed.
+- Assistance: An example MATLAB script is provided in the dataset root directory demonstrating how to perform this synchronization using autocorrelation and subsequent symbol selection with matched filtering. The resulted complex symbol pairs can be exported to Python fot ML-based equalizer training.
+- You can also utilize use the first 100 symbols (a known preamble sequence) for synchronization.
