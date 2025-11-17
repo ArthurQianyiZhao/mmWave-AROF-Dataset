@@ -4,7 +4,8 @@
 % is generated using PRBS and RRC filtering with oversampling factor of 10
 % and filter span of 10.
 % In our example we applied matched filtering with decimation to select the right
-% symbols.
+% symbols. The paired symbols are exported to Python for ML-based
+% equalization and demodulation.
 
 clear; clc; close all;
 
@@ -51,12 +52,9 @@ txWaveform = rcFilter(totalTxSymbols);
 % txWaveform_q = load('Tx_Waveform/16QAM_q.txt');
 % txWaveform = complex(txWaveform_i, txWaveform_q);
 
-
-
-
 % Import Rx waveform
-i_raw = load('1m/16QAM/16QAM_28_7_i.txt');
-q_raw = load('1m/16QAM/16QAM_28_7_q.txt');
+i_raw = load('10km/16QAM/16QAM_28_3_i.txt');
+q_raw = load('10km/16QAM/16QAM_28_3_q.txt');
 rxWaveform = complex(i_raw, q_raw);
 % Use autocorrelation to find the delay between Rx and Tx
 d = finddelay(txWaveform, rxWaveform);
@@ -77,6 +75,6 @@ rxSymbols = filteredSymbols(filterSpan+1:end);
 labelSymbols = totalTxSymbols(1:end-filterSpan);
 
 % Export the symbols as complex array if processing in Python
-% outputFileName = 'output_symbols.mat';
-% dataToSave = [rxSymbols, labelSymbols]; % Concatenate the two arrays
-% save(outputFileName, 'dataToSave'); % Save to file in .mat format
+outputFileName = '10km_16QAM_28_3.mat';
+dataToSave = [rxSymbols, labelSymbols]; % Concatenate the two arrays
+save(outputFileName, 'dataToSave'); % Save to file in .mat format
