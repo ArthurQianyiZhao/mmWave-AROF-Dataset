@@ -67,3 +67,29 @@ The received (Rx) waveforms are NOT time-aligned with the reference transmitted 
 - A synchronization step is essential before any signal processing, channel estimation, or model training can be performed.
 - Assistance: An example MATLAB script is provided in the dataset root directory demonstrating how to perform this synchronization using autocorrelation and subsequent symbol selection with matched filtering. The resulted complex symbol pairs can be exported to Python fot ML-based equalizer training.
 - You can also utilize use the first 100 symbols (a known preamble sequence) for synchronization.
+
+## Example Use Case - Baseline ML Equalizers
+
+To validate the dataset and provide a baseline, we include several ML equalizers in the repository, all implemented for symbol regression.
+
+- XGBoost - Tree model
+- Multilayer Perceptron (MLP)
+- Long Short-Term Memory (LSTM)
+- Gated Recurrent Unit (GRU)
+- Transformer
+
+For this demonstration, the Tx symbols (ground truth labels) and the Rx symbols (model inputs) were synchronized and paired using the provided MATLAB script: `waveform**_sync_and_matched_filtering.m`.**
+
+Training Parameters (Deep Models):
+
+- Input Window: 21 symbols
+- Epochs: 100
+- Hidden Layers: 2 (with size 64).
+
+The models and Python scripts demonstrating this analysis are available in the `/Use_Cases/Paper_Analysis/` folder.
+
+- `ML_receiver_main.ipynb`: The main Jupyter Notebook for running the analysis.
+- Model implementations: `mlp_model.py`, `lstm_model.py`, `gru_model.py`, `transformer_model.py`, `xgboost_model.py`.
+- `modulation_utils.py`: Utility functions for demodulation.
+
+We welcome contributions and encourage researchers to upload their solutions.
