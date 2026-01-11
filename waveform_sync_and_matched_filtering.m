@@ -9,8 +9,8 @@
 
 clear; clc; close all;
 
-%% 1. System Parameters (Must match your transmitter)
-M = 16;                          % Modulation order
+%% System Parameters (Must match transmitter)
+M = 16;                          % Modulation order (only change modulation order here as others parameters are the same)
 Fs_symbol = 1e9;                 % Symbol Rate
 Fs = 10e9;                       % Sample Rate
 sps = 10;                        % SamplesPerSymbol (Fs / Fs_symbol)
