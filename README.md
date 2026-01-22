@@ -22,7 +22,7 @@ These serve as the ground truth for subsequent experiments. They are generated f
 
 **Storage Location:** `/Tx_Waveform_and_Bits`
 
-- Contains the four reference complex waveforms and their corresponding bit sequences.
+- Contains the four reference complex waveforms and corresponding raw bit sequences.
 
 ### 2. Experimentally Received Waveforms (Rx)
 
@@ -60,13 +60,13 @@ The 108 sets of received waveforms (4 modulation schemes $\times$ 3 frequencies 
 | `[Modulation Scheme]` | `/16QAM/`          | Modulation format used.                                      |
 | `[File Name]`         | `16QAM_28_7_i.txt` | **16QAM** (Modulation), **28** (Carrier Frequency in GHz), **7** (PD Power in dBm), **i** (I-component). |
 
-## Essential Pre-processing: Synchronization
+## Example Synchronization
 
-The received (Rx) waveforms are NOT time-aligned with the reference transmitted (Tx) waveforms.
+The received (Rx) waveforms are NOT time-aligned with the reference transmitted (Tx) waveforms. An example waveform-level synchronization has been processed in `waveform_sync.ipynb` using autocorrelation in Python. Resulted synchronized waveforms have been saved in each folder under name `sync_[Modulation Scheme_ModulationFormat_CarrierFrequency_PDInputPower.txt]`, with Rx on the left column and Tx on the right column (label), which can be directly used for training.
 
-- A synchronization step is essential before any signal processing, channel estimation, or model training can be performed.
-- Assistance: An example MATLAB script is provided in the dataset root directory demonstrating how to perform this synchronization using autocorrelation and subsequent symbol selection with matched filtering. The resulted complex symbol pairs can be exported to Python fot ML-based equalizer training.
-- You can also utilize use the first 100 symbols (a known preamble sequence) for synchronization.
+An example MATLAB script is also provided in the dataset root directory demonstrating how to perform this synchronization using autocorrelation and subsequent symbol selection with matched filtering. The resulted complex symbol pairs can be exported to Python fot ML-based equalizer training.
+
+You can also utilize use the first 100 symbols (a known preamble sequence) for synchronization.
 
 ## Example Use Case - Baseline ML Equalizers
 
