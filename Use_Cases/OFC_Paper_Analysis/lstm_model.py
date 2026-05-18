@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
 from sklearn.model_selection import train_test_split
-from modulation_utils import qam_demod, calculate_ber
+from utils import bits_for_symbol_indices, calculate_evm, qam_demod, calculate_ber
 
 
 class LSTMEqualizerNet(nn.Module):
@@ -120,8 +120,9 @@ class LSTMEqualizer:
             total_tx_symbols: Nx1 complex array of true transmitted symbols
             
         Returns:
-            X_real: Real-valued input features (interleaved I/Q)
-            T_real: Real-valued target outputs (I and Q)
+        X_real: Real-valued input features (interleaved I/Q)
+        T_real: Real-valued target outputs (I and Q)
+        symbol_indices: Symbol index for each target row
         """
         received_symbols = received_symbols.flatten()
         total_tx_symbols = total_tx_symbols.flatten()
@@ -142,8 +143,9 @@ class LSTMEqualizer:
         X_real[:, 1::2] = X_complex.imag
         
         T_real = np.hstack([T_complex.real, T_complex.imag])
+        symbol_indices = np.arange(self.tap_delay, num_symbols - self.tap_delay, dtype=np.int64)
         
-        return X_real, T_real
+        return X_real, T_real, symbol_indices
     
     def train(self, received_symbols, total_tx_symbols, tx_bits, modulation_order, test_size=0.3, verbose=True):
         """
@@ -164,11 +166,11 @@ class LSTMEqualizer:
             print(f"Using device: {self.device}")
             print("Creating sliding window data for LSTM...")
         
-        X_real, T_real = self.prepare_data(received_symbols, total_tx_symbols)
+        X_real, T_real, symbol_indices = self.prepare_data(received_symbols, total_tx_symbols)
         
         # Train/Test Split
-        X_train, X_test, T_train, T_test = train_test_split(
-            X_real, T_real, test_size=test_size, random_state=self.random_state
+        X_train, X_test, T_train, T_test, _, test_symbol_indices = train_test_split(
+            X_real, T_real, symbol_indices, test_size=test_size, random_state=self.random_state
         )
         
         # Convert to PyTorch tensors and reshape for LSTM (add sequence dimension)
@@ -204,7 +206,16 @@ class LSTMEqualizer:
             print("Training complete.")
         
         # Evaluate on test set
-        results = self.evaluate(X_test_tensor, T_test_tensor, X_test, T_test, tx_bits, modulation_order, verbose=verbose)
+        results = self.evaluate(
+            X_test_tensor,
+            T_test_tensor,
+            X_test,
+            T_test,
+            test_symbol_indices,
+            tx_bits,
+            modulation_order,
+            verbose=verbose,
+        )
         
         return results
     
@@ -223,7 +234,17 @@ class LSTMEqualizer:
             predictions = self.model(X).cpu().numpy()
         return predictions[:, 0] + 1j * predictions[:, 1]
     
-    def evaluate(self, X_test_tensor, T_test_tensor, X_test, T_test, tx_bits, modulation_order, verbose=True):
+    def evaluate(
+        self,
+        X_test_tensor,
+        T_test_tensor,
+        X_test,
+        T_test,
+        test_symbol_indices,
+        tx_bits,
+        modulation_order,
+        verbose=True,
+    ):
         """
         Evaluate the model on test data.
         
@@ -232,6 +253,7 @@ class LSTMEqualizer:
             T_test_tensor: Test target tensor
             X_test: Test input numpy array
             T_test: Test target numpy array
+            test_symbol_indices: Raw transmitted-symbol indices for test targets
             tx_bits: Transmitted bits for BER calculation
             modulation_order: QAM modulation order
             verbose: Whether to print results
@@ -254,27 +276,27 @@ class LSTMEqualizer:
         # Calculate MSE
         mse_before = np.mean(np.abs(actual_symbols_test - received_symbols_test)**2)
         mse_after = np.mean(np.abs(actual_symbols_test - equalized_symbols_test)**2)
+        evm_before = calculate_evm(actual_symbols_test, received_symbols_test, percent=True)
+        evm_after = calculate_evm(actual_symbols_test, equalized_symbols_test, percent=True)
         
         # Calculate R2 Score
         from sklearn.metrics import r2_score
         r2_before = r2_score(T_test, np.column_stack([received_symbols_test.real, received_symbols_test.imag]))
         r2_after = r2_score(T_test, predictions)
         
-        # Calculate BER using proper QAM demodulation
-        k = int(np.log2(modulation_order))  # bits per symbol
-        
         # Demodulate symbols to bits
         rx_bits_before = qam_demod(received_symbols_test, modulation_order, unit_power=True)
         rx_bits_after = qam_demod(equalized_symbols_test, modulation_order, unit_power=True)
-        tx_bits_actual = qam_demod(actual_symbols_test, modulation_order, unit_power=True)
+        tx_bits_actual = bits_for_symbol_indices(tx_bits, test_symbol_indices, modulation_order)
         
         # Calculate BER
-        _, ber_before = calculate_ber(tx_bits_actual, rx_bits_before)
-        _, ber_after = calculate_ber(tx_bits_actual, rx_bits_after)
+        bit_errors_before, ber_before = calculate_ber(tx_bits_actual, rx_bits_before)
+        bit_errors_after, ber_after = calculate_ber(tx_bits_actual, rx_bits_after)
         
         if verbose:
             print("\n--- LSTM Results ---")
             print(f"MSE After EQ:  {mse_after:.4f}")
+            print(f"EVM After EQ:  {evm_after:.2f}%")
             print(f"R2 After EQ:   {r2_after:.4f}")
             print(f"BER After EQ:  {ber_after:.6e}")
         
@@ -285,10 +307,16 @@ class LSTMEqualizer:
             "received_symbols": received_symbols_test,
             "mse_before": mse_before,
             "mse_after": mse_after,
+            "evm_before": evm_before,
+            "evm_after": evm_after,
             "r2_before": r2_before,
             "r2_after": r2_after,
             "ber_before": ber_before,
-            "ber_after": ber_after
+            "ber_after": ber_after,
+            "bit_errors_before": bit_errors_before,
+            "bit_errors_after": bit_errors_after,
+            "num_test_bits": len(tx_bits_actual),
+            "test_symbol_indices": test_symbol_indices
         }
     
     def save_model(self, filepath):
