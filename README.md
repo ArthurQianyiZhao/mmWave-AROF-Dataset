@@ -80,7 +80,7 @@ The baseline Python workflow now performs the same steps directly from the raw `
 For example, `ML_receiver_main.ipynb` builds or loads:
 
 ```
-Use_Cases/OFC_Paper_Analysis/10km_16QAM_28_3.npz
+Use_Cases/OFC_2026_baseline_ML_receiver/10km_16QAM_28_3.npz
 ```
 
 with `input` as matched-filtered Rx symbols, `label` as the aligned transmitted symbols, and `tx_bits` as the original raw transmitted bit sequence.
@@ -107,7 +107,7 @@ Training Parameters (Deep Models):
 
 The models report MSE, R2 score, RMS EVM, and BER. BER is calculated against the actual raw transmitted bit sequence for each test symbol, not by re-demodulating the label symbols.
 
-The models and Python scripts demonstrating this analysis are available in the `/Use_Cases/OFC_Paper_Analysis/` folder.
+The models and Python scripts demonstrating this analysis are available in the `/Use_Cases/OFC_2026_baseline_ML_receiver/` folder.
 
 - `ML_receiver_main.ipynb`: The main Jupyter Notebook for running the analysis.
 - Model implementations: `mlp_model.py`, `lstm_model.py`, `gru_model.py`, `transformer_model.py`, `xgboost_model.py`.

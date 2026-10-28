@@ -1,0 +1,4 @@
+below_reference,ber,bit_errors,captures,method,total_bits
+57,0.003713683566284296,35970,76,subspace_dd,9685801
+48,0.02611461870835463,252941,76,ridge_teacher:1,9685801
+41,0.01773658162086956,171793,76,subspace_no_dd,9685801
